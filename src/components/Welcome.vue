@@ -28,9 +28,8 @@ i {
   display: flex;
   place-items: center;
   place-content: center;
-  width: 32px;
-  height: 32px;
-
+  width: 1rem;
+  height: 1rem;
   color: var(--color-text);
 }
 

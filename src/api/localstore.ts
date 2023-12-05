@@ -1,5 +1,8 @@
 import { smartCastFloat, smartCastInt } from "./converters";
-import { notEmptyString } from "./validators";
+import { notEmptyString, validDateTimeString } from "./validators";
+
+const MAX_PAGE_STORAGE_SIZE = 1024 * 1024;
+
 
 export interface StorageItem {
   expired: boolean;
@@ -127,3 +130,177 @@ export const hasLocalObject = (
   }
   return valid;
 };
+
+export interface StoredItemMeta {
+  key: string;
+  ts: number;
+  size: number;
+}
+
+export interface StoredItemInfo extends StoredItemMeta {
+  title: string;
+  uri: string;
+}
+
+export const scanStorageForItems = (prefix = ""): StoredItemMeta[] => {
+  let total = 0;
+  let size = 0;
+  const items: StoredItemMeta[] = [];
+  if (localStorage) {
+    const keys = Object.keys(localStorage);
+    if (keys.length > 0) {
+      for (const key of keys) {
+        if (key.startsWith(prefix)) {
+          total++;
+          const item = localStorage.getItem(key);
+          let ts = 0;
+          if (typeof item === 'string') {
+            const itemSize = item.length; 
+            size += itemSize;
+            const parts = item.split(":");
+            if (parts.length > 2) {
+              const numPart = parts.shift();
+              if (numPart) {
+                ts = parseInt(numPart, 10);
+                items.push({
+                  key,
+                  size: itemSize,
+                  ts
+                })
+              }
+            }
+            if (ts < 1) {
+              localStorage.removeItem(key);
+            }
+          }
+        }
+      }
+    }
+  }
+  items.sort((a,b) => b.ts - a.ts);
+  return {
+    total,
+    size,
+    items
+  }
+}
+
+export const scanStoredPages = (): StoredItemMeta[] => {
+  return scanStorageForItems("page_");
+}
+
+
+export const removeExtraPages = () => {
+  let removed = 0;
+  let removedSize = 0;
+  const { items, total, size} = scanStoredPages();
+  if (size > MAX_PAGE_STORAGE_SIZE) {
+    const fraction = MAX_PAGE_STORAGE_SIZE / size;
+    const targetNum = Math.floor(total * fraction);
+    if (targetNum > 1) {
+      const discardedItems = items.splice(targetNum, total - targetNum);
+      if (discardedItems instanceof Array) {
+        for (const delItem of discardedItems) {
+          removed++;
+          removedSize += delItem.size;
+          localStorage.removeItem(delItem.key);
+        }
+      }
+    }
+  }
+  return {
+    total,
+    size,
+    items,
+    removed,
+    removedSize
+  }
+}
+
+
+export const listStoredPages = (): StoredItemInfo[] => {
+  const { items, total, size} = scanStoredPages();
+  const rows: StoredItemInfo[] = [];
+  if (items instanceof Array && total > 0 && size > 0) {
+    for (const item of items) {
+      const stored = fromLocal(item.key);
+      if (stored.valid) {
+        if (stored.data instanceof Object) {
+          const { stats } = stored.data;
+          if (stats instanceof Object) {
+            const { uri, title } = stats;
+            if (notEmptyString(uri) && notEmptyString(title)) {
+              rows.push({...item, title, uri });
+            }
+          }
+        }
+      }
+    }
+  }
+  return rows;
+}
+
+export interface SearchSet {
+  text: string;
+  key: string;
+  page: number;
+  count: number;
+  results: SearchItem[];
+  date: Date
+}
+
+export class SearchItem {
+  title = "";
+  uri = "";
+  summary = "";
+  date = new Date(0);
+
+  constructor(inData: any = null) {
+    if (inData instanceof Object) {
+      const { title, uri, summary, date } = inData;
+      if (notEmptyString(title)) {
+        this.title = title;
+      }
+      if (notEmptyString(uri)) {
+        this.uri = uri;
+      }
+      if (notEmptyString(summary)) {
+        this.summary = summary;
+      }
+      if (validDateTimeString(date)) {
+        this.date = new Date(date);
+      }
+    }
+  }
+}
+
+
+
+export const fetchRecentSearches = (): SearchItem[] => {
+  const { items, total, size} = scanStorageForItems("search_");
+  const rows: SearchSet[] = [];
+  if (items instanceof Array && total > 0 && size > 0) {
+    for (const item of items) {
+      const stored = fromLocal(item.key);
+      const parts = item.key.split("_");
+      parts.shift();
+      const suffix = parts.join("_");
+      const text = atob(suffix);
+      if (stored.valid) {
+        if (stored.data instanceof Object) {
+          const { page, count, results, ts } = stored.data;
+          if (results instanceof Array && count > 0) {
+            rows.push({
+              text,
+              page,
+              count,
+              results: results.filter(row => row instanceof Object).map(row => new SearchItem(row)),
+              date: new Date(ts * 1000)
+            })
+          }
+        }
+      }
+    }
+  }
+  return rows;
+}

@@ -5,8 +5,8 @@ import { SearchResult } from '../api/models/search-results';
 import { PageResult } from '../api/models/page-result';
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
-import TextPreview from './TextPreview.vue'
 import { usePageStore } from '../stores/page.store';
+import { fetchRecentSearches, listStoredPages, removeExtraPages } from '../api/localstore';
 
 
 const search = ref('');
@@ -37,6 +37,8 @@ const updateSuggestions = () => {
 
 const updateResults = () => {
   loading.value = true;
+  removeExtraPages();
+  console.log(listStoredPages(), fetchRecentSearches())
   fetchSearchResults(search.value).then(data => {
     if (data.results instanceof Array) {
       results.value = data.results.filter(row => row instanceof SearchResult);
@@ -64,7 +66,6 @@ const updatePageResult = (uri = "") => {
 
 <template>
   <div class="text-surf">
-    <h1 class="green">{{ msg }}</h1>
     <fieldset>
       <AutoComplete v-model="search" :suggestions="items" @complete="updateSuggestions" />
       <Button type="button" label="Search" icon="pi pi-search" :loading="loading" @click="updateResults" />
@@ -87,18 +88,12 @@ const updatePageResult = (uri = "") => {
 <style scoped>
 h1 {
   font-weight: 500;
-  font-size: 2.6rem;
+  font-size: 3rem;
   position: relative;
-  top: -10px;
 }
 
 h3 {
   font-size: 1.2rem;
-}
-
-.greetings h1,
-.greetings h3 {
-  text-align: center;
 }
 
 .result-list li p span {
@@ -108,6 +103,11 @@ h3 {
 
 .result-list li p span.preview-trigger {
   cursor: pointer;
+  color: var(--orange);
+}
+
+.result-list li p span.preview-trigger:hover {
+  color: var(--green);
 }
 
 @media (min-width: 1024px) {

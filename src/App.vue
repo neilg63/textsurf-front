@@ -58,7 +58,7 @@ onMounted(() => {
 <template>
  <main :class="wrapperClasses">
   <header>
-      <img alt="TextSurf Logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+      <img alt="TextSurf Logo" class="logo" src="@/assets/logo.svg" width="384" height="96" />
 
       <div class="wrapper">
         
@@ -69,8 +69,10 @@ onMounted(() => {
         </nav>
       </div>
     </header>
-    <TextSearchHome />
-    <TextPreview v-if="pageStore.page.hasContent" :page="pageStore.page" />
+    <section class="search-section twin">
+      <TextSearchHome />
+      <TextPreview v-if="pageStore.page.hasContent" :page="pageStore.page" />
+    </section>
     <RouterView />
  </main>
 </template>
@@ -110,6 +112,10 @@ nav a:first-of-type {
   border: 0;
 }
 
+.search-section {
+  display: grid;
+}
+
 @media (min-width: 1024px) {
   header {
     display: flex;
@@ -117,14 +123,24 @@ nav a:first-of-type {
     padding-right: calc(var(--section-gap) / 2);
   }
 
-  .logo {
-    margin: 0 2rem 0 0;
+  .search-section {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 5%;
   }
 
-  header .wrapper {
+  .logo {
+    margin: 0 2vw;
+    height: 100%;
+    width: auto;
+  }
+
+  header {
     display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    flex-flow: row nowrap;
+    width: 100%;
+    margin: 0 auto;
   }
 
   nav {
