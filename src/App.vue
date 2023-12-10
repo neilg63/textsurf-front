@@ -57,7 +57,7 @@ onMounted(() => {
 
 <template>
  <main :class="wrapperClasses">
-  <header>
+  <header class="top">
       <img alt="TextSurf Logo" class="logo" src="@/assets/logo.svg" width="384" height="96" />
 
       <div class="wrapper">
@@ -71,7 +71,7 @@ onMounted(() => {
     </header>
     <section class="search-section twin">
       <TextSearchHome />
-      <TextPreview :page="pageStore.page" />
+      <TextPreview :page="pageStore.page" :linkSet="pageStore.linkSet" />
     </section>
     <RouterView />
  </main>

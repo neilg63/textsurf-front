@@ -47,7 +47,7 @@ dd .p-button.p-button-icon-only.p-button-rounded {
   margin: 0 0.5em;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 50rem) {
   header {
     display: flex;
     place-items: center;
@@ -61,7 +61,7 @@ dd .p-button.p-button-icon-only.p-button-rounded {
 
   .logo {
     margin: 0 2vw;
-    height: 100%;
+    height: 90%;
     width: auto;
   }
 
@@ -81,5 +81,76 @@ dd .p-button.p-button-icon-only.p-button-rounded {
 
     padding: 1rem 0;
     margin-top: 1rem;
+  }
+}
+
+.p-tabview-nav {
+  li {
+    a {
+      i, span {
+        display: inline-block;
+      }
+      i.pi {
+        margin-left: 0.5em;
+      }
+    }
+  }
+}
+
+.p-tooltip {
+  &.wide {
+    min-width: 25em;
+    @media (min-width: 50rem) {
+      width: 100%;
+      max-width: 60vw;
+    }
+    @media (min-width: 90rem) {
+      max-width: 75em;
+    }
+  }
+  &.text-small {
+    font-size: 0.8em;
+  }
+}
+
+h1 {
+  font-weight: 500;
+  font-size: 3rem;
+  position: relative;
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
+
+.result-list {
+  li {
+    span {
+      display: inline-block;
+      margin-right: 1em;;
+    }
+    span.preview-trigger{
+      cursor: pointer;
+      color: var(--orange);
+      &:hover {
+      color: var(--green);
+    }
+    }
+  }
+}
+
+fieldset {
+  border: 0;
+  padding: .5em 0;
+  &.search-form {
+    display: flex;
+    flex-flow: row nowrap;
+    .p-autocomplete {
+      width: calc(100% - 3em);
+      input {
+        width: 100%;
+      }
+    }
   }
 }

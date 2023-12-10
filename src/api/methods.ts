@@ -3,7 +3,7 @@ import { notEmptyString } from "./validators";
 import { API_BASE, API_KEY } from "./settings";
 import { fromLocal, toLocal } from "./localstore";
 import { PageResult } from "./models/page-result";
-import { SearchResultSet } from "./models/search-results";
+import { LinkResultSet, SearchResultSet } from "./models/search-results";
 import type { BasicData } from "./interfaces";
 
 const extractDataObj = (res: any) => {
@@ -147,12 +147,19 @@ const fetchPageFromRemote = async (uri = "", fullMode = false) => {
   }
 }
 
-export const fetchPageDefault = async (uri = "") => {
-  return fetchPageFromRemote(uri, false);
-}
-
-export const fetchPageFullBrowser = async (uri = "") => {
-  return fetchPageFromRemote(uri, true);
+const fetchPageLinksFromRemote = async (uri = "") => {
+  const method = "get-links";
+  const alias = ["scrape", method].join("/");
+  if (notEmptyString(uri, 7) && (uri.startsWith('https://') || uri.startsWith('http://'))) {
+    const data = await queryDataObject(alias, { uri } );
+    if (data instanceof Object) {
+      const { links } = data;
+      if (links instanceof Array) {
+        return { valid: true, msg: "ok", links }
+      }
+    }
+  }
+  return { valid: false, msg: "no uri", links: [] };
 }
 
 
@@ -264,13 +271,39 @@ export const fetchTextPage = async (uri = "", fullMode = false): Promise<PageRes
   const stored = fromLocal(cacheKey, 60 * 60);
   let page = new PageResult();
   if (!stored.expired && !fullMode) {
-    page = new PageResult(stored.data);
+    page = new PageResult(stored.data, uri);
   } else {
     const data = await fetchPageFromRemote(uri, fullMode);
     if (data.valid) {
       toLocal(cacheKey, data);
-      page = new PageResult(data);
+      page = new PageResult(data, uri);
     }
   }
   return page;
 }
+
+export const fetchPageLinks = async (uri = ""): Promise<LinkResultSet>  => {
+  const cacheKey = ['pl', btoa(uri)].join('_');
+  const stored = fromLocal(cacheKey, 60 * 60);
+  let resultSet = new LinkResultSet();
+  let matched = false;
+  if (!stored.expired) {
+    const { links } = stored.data;
+    if (links instanceof Array && links.length > 0) {
+      resultSet = new LinkResultSet(links, uri);
+      matched = true;
+    }
+  }
+  if (!matched) {
+    const data = await fetchPageLinksFromRemote(uri);
+    if (data.valid) {
+      const { links } = data;
+      if (links.length > 0) {
+        toLocal(cacheKey, data);
+        resultSet = new LinkResultSet(links, uri);
+      }
+    }
+  }
+  return resultSet;
+}
+

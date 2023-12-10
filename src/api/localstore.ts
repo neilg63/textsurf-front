@@ -1,4 +1,5 @@
 import { smartCastFloat, smartCastInt } from "./converters";
+import { SearchResult } from "./models/search-results";
 import { notEmptyString, validDateTimeString } from "./validators";
 
 const MAX_PAGE_STORAGE_SIZE = 1024 * 1024;
@@ -248,13 +249,36 @@ export const listStoredPages = (): StoredItemInfo[] => {
   return rows;
 }
 
-export interface SearchSet {
-  text: string;
-  key: string;
-  page: number;
-  count: number;
-  results: SearchItem[];
-  date: Date
+export class SearchSet {
+  text = "";
+  key = "";
+  page = 0;
+  count = 0;
+  results: SearchItem[] = [];
+  date = new Date(0)
+
+  constructor(inData: any = null) {
+    if (inData instanceof Object) {
+      const { text, key, page, count, results, date } = inData;
+      if (notEmptyString(text)) {
+        this.text = text;
+      }
+      if (notEmptyString(key)) {
+        this.key = key;
+      }
+      if (page) {
+        this.page = page;
+      }
+      if (validDateTimeString(date)) {
+        this.date = new Date(date);
+      } else if (date instanceof Date) {
+        this.date = date;
+      }
+      if (results instanceof Array) {
+        this.results = results.map(r => new SearchItem(r));
+      }
+    }
+  }
 }
 
 export class SearchItem {
@@ -277,8 +301,14 @@ export class SearchItem {
       }
       if (validDateTimeString(date)) {
         this.date = new Date(date);
+      } else if (date instanceof Date) {
+        this.date = date;
       }
     }
+  }
+
+  toResult(): SearchResult {
+    return new SearchResult(this)
   }
 }
 
@@ -296,7 +326,7 @@ export const fetchRecentSearches = (): SearchSet[] => {
       const text = atob(suffix);
       if (stored.valid) {
         if (stored.data instanceof Object) {
-          const { page, count, results, ts, key } = stored.data;
+          const { page, count, results, ts } = stored.data;
           if (results instanceof Array && count > 0) {
             rows.push({
               text,

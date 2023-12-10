@@ -1,4 +1,5 @@
-import { smartCastInt } from "../converters";
+import { smartCastBool, smartCastInt } from "../converters";
+import { SearchItem } from "../localstore";
 import { notEmptyString, validDateTimeString } from "../validators";
 
 
@@ -31,6 +32,10 @@ export class SearchResult {
     return this.uri.startsWith("https://") || this.uri.startsWith("http://");
   }
 
+  toItem(): SearchItem {
+    return new SearchItem(this)
+  }
+
 }
 
 export class SearchResultSet {
@@ -57,6 +62,50 @@ export class SearchResultSet {
       if (results instanceof Array && results.length > 0) {
         this.results = results.map(row => new SearchResult(row));
       }
+    }
+  }
+
+}
+
+
+
+export class LinkResult {
+  local = false;
+  summary = "";
+  title = "";
+  uri = "";
+
+  constructor(inData: any  = null) {
+    if (inData instanceof Object) {
+      const { title, uri, summary, local } = inData;
+      
+      if (notEmptyString(uri)) {
+        this.uri = uri;
+      }
+      if (notEmptyString(title)) {
+        this.title = title;
+      }
+
+      if (notEmptyString(summary)) {
+        this.summary = summary;
+      }
+      this.local = smartCastBool(local, false);
+    }
+  }
+
+}
+
+export class LinkResultSet {
+  uri = "";
+  results: LinkResult[] = [];
+
+  constructor(results: any[] = [], uri = "") {
+    if (results instanceof Array) {
+      this.results = results.filter(row => row instanceof Object).map(row => new LinkResult(row));
+
+    }
+    if (notEmptyString(uri)) {
+      this.uri = uri;
     }
   }
 

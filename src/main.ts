@@ -1,4 +1,4 @@
-import './assets/main.css'
+import './assets/base.css'
 import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/lara-light-green/theme.css'
 import Tooltip from 'primevue/tooltip';

@@ -1,4 +1,5 @@
 import { smartCastInt } from "../converters";
+import { cleanInnerHtml } from "../dom";
 import { notEmptyString } from "../validators";
 
 export class PageStats {
@@ -25,32 +26,34 @@ export class PageResult {
   image = "";
   numLinks = 0;
   textLength = 0;
+  totalSize = 0;
   stats = new PageStats();
   domainLinks: string[] = [];
   lang = "";
   uri = "";
 
-  constructor(inData: any  = null) {
+  constructor(inData: any  = null, uri = "") {
     if (inData instanceof Object) {
       const { content, stats } = inData;
       if (content instanceof Object) {
         this.stats = new PageStats(content);
         const { bestText, compactTextLength } = content;
         if (notEmptyString(bestText, 5)) {
-          this.innerHTML = bestText;
+          this.innerHTML = cleanInnerHtml(bestText);
         }
         if (compactTextLength) {
           this.textLength = smartCastInt(compactTextLength);
           if (this.textLength < 2500 && this.innerHTML.length > 16) {
-            const stripped = this.innerHTML.replace(/<\/?\w[^>]*?>/, "").replace(/\s\s+/, " ").trim();
+            const stripped = this.innerHTML.replace(/<\/?\w[^>]*?>/g, "").replace(/\s\s+/, " ").trim();
             if (stripped.length < 1250) {
               this.textLength = stripped.length;
             }
           }
+          
         }
       }
       if (stats instanceof Object) {
-        const { image, description, numLinks, domainLinks, lang, uri } = stats;
+        const { image, description, numLinks, domainLinks, lang, uri, sourceHtmlLength } = stats;
         if (domainLinks instanceof Array) {
           this.domainLinks = domainLinks;
         }
@@ -68,8 +71,13 @@ export class PageResult {
         if (notEmptyString(uri, 5)) {
           this.uri = uri;
         }
+        if (sourceHtmlLength) {
+          this.totalSize = sourceHtmlLength;
+        }
       }
-
+      if (notEmptyString(uri, 5) && this.uri.length < 5) {
+        this.uri = uri;
+      }
     }
   }
 
@@ -78,7 +86,7 @@ export class PageResult {
   }
 
   get minimalContent(): boolean {
-    return this.textLength < 512;
+    return this.textLength < 1024;
   }
 
   get hasManyLinks(): boolean {

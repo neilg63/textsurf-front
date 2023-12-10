@@ -38,7 +38,7 @@
   --section-gap: 160px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--vt-c-black);
     --color-background-soft: var(--vt-c-black-soft);
@@ -50,7 +50,7 @@
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
   }
-}
+} */
 
 *,
 *::before,
@@ -85,4 +85,52 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@import './base.css';
+
+#app {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 2vw;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: var(--green);
+  transition: 0.4s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+#app main > header.top {
+  height: 3em;
+  position: fixed;
+  display: flex;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-background);
+  z-index: 20;
+}
+
+#app {
+  padding-top: 3em;
+}
+
+@media (min-width: 1024px) {
+
+  #app  {
+    padding-top: 6em;
+  }
+
+  #app main > header.top {
+    height: 6em;
+  }
 }

@@ -96,6 +96,31 @@ export const smartCastInt = (inval: any): number => {
   return Math.floor(smartCastFloat(inval));
 };
 
+export const smartCastBool = (item: any, defVal: boolean = true) => {
+  let boolVal = defVal;
+  if (typeof item === 'string') {
+    if (/^-?[0-9]$/.test(item)) {
+      boolVal = parseInt(item, 10) > 0;
+    } else if (/^(true|false|yes|no)$/i.test(item)) {
+      switch (item.toLowerCase()) {
+        case 'true':
+        case 'yes':
+          boolVal = true;
+          break;
+        case 'false':
+        case 'no':
+          boolVal = false;
+          break;
+      }
+    }
+  } else if (typeof item === 'number') {
+    boolVal = item > 0;
+  } else if (typeof item === 'boolean') {
+    boolVal = item;
+  }
+  return boolVal;
+};
+
 export const camelToTitle = (str: string): string => {
   return str
     .replace(/([A-Z])/g, (match) => {
