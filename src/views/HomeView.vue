@@ -4,6 +4,6 @@ import Welcome from '../components/Welcome.vue'
 
 <template>
   <aside>
-    <Welcome />
+    <Welcome msg="Welcome to TextSurf"/>
   </aside>
 </template>

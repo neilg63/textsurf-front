@@ -1,5 +1,6 @@
 <template>
   <div class="item">
+    <h4>{{ msg  }}</h4>
     <i>
       <slot name="icon"></slot>
     </i>
@@ -11,7 +12,12 @@
     </div>
   </div>
 </template>
+<script setup lang="ts">
+defineProps<{
+  msg: string
+}>();
 
+</script>
 <style scoped>
 .item {
   margin-top: 2rem;
