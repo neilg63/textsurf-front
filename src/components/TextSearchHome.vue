@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { fetchSearchResults, fetchSuggestList, fetchTextPage } from '../api/methods';
+import { fetchSearchResults, fetchSuggestList, fetchTextPage, fetchPageFullBrowser } from '../api/methods';
 import { SearchResult } from '../api/models/search-results';
 import { PageResult } from '../api/models/page-result';
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
-import { usePageStore } from '../stores/page.store';
-import { fetchRecentSearches, listStoredPages, removeExtraPages } from '../api/localstore';
-
+import { usePageStore } from '../stores/page.store'
+import { useEventStore } from '../stores/event.store';
+import { SearchItem, fetchRecentSearches, listStoredPages, removeExtraPages } from '../api/localstore';
+import type { SearchSet } from '../api/localstore';
 
 const search = ref('');
 
@@ -26,8 +27,10 @@ const pageResult = ref(new PageResult())
 
 const items = ref(emptyStrings);
 
+const event = useEventStore();
+
+
 const updateSuggestions = () => {
-  console.log(search.value);
   fetchSuggestList(search.value).then(rows => {
     if (rows instanceof Array) {
       items.value = rows as string[];
@@ -38,7 +41,6 @@ const updateSuggestions = () => {
 const updateResults = () => {
   loading.value = true;
   removeExtraPages();
-  console.log(listStoredPages(), fetchRecentSearches())
   fetchSearchResults(search.value).then(data => {
     if (data.results instanceof Array) {
       results.value = data.results.filter(row => row instanceof SearchResult);
@@ -49,9 +51,9 @@ const updateResults = () => {
   })
 }
 
-const updatePageResult = (uri = "") => {
+const updatePageResult = (uri = "", fullMode = false) => {
   loading.value = true;
-  fetchTextPage(uri).then(data => {
+  fetchTextPage(uri, fullMode).then(data => {
     if (data instanceof PageResult) {
       pageResult.value = data;
       pageStore.update(data);
@@ -61,6 +63,27 @@ const updatePageResult = (uri = "") => {
     }
   })
 }
+
+onMounted(() => {
+  const recentSearches = fetchRecentSearches();
+  if (recentSearches instanceof Array && recentSearches.length > 0) {
+    
+    if (recentSearches[0] instanceof Object) {
+      const firstSearch = recentSearches[0] as SearchSet;
+      search.value = firstSearch.text;
+      if (firstSearch.results.length > 0) {
+        results.value = firstSearch.results.map(row => new SearchResult(row))
+      }
+    }
+  }
+  
+})
+
+event.on('fetch-from-browser', (uri) => {
+  if (typeof uri === "string") {
+    updatePageResult(uri, true);
+  }
+});
 
 </script>
 
@@ -81,7 +104,6 @@ const updatePageResult = (uri = "") => {
         </li>
       </ul>
     </section>
-    <TextPreview v-if="pageResult.hasContent" :page="pageResult" />
   </div>
 </template>
 

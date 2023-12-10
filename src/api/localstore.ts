@@ -142,7 +142,15 @@ export interface StoredItemInfo extends StoredItemMeta {
   uri: string;
 }
 
-export const scanStorageForItems = (prefix = ""): StoredItemMeta[] => {
+export interface StoredItemMetaSet {
+  total: number;
+  size: number;
+  items: any[];
+  removed?: number;
+  removedSize?: number;
+}
+
+export const scanStorageForItems = (prefix = ""): StoredItemMetaSet => {
   let total = 0;
   let size = 0;
   const items: StoredItemMeta[] = [];
@@ -185,7 +193,7 @@ export const scanStorageForItems = (prefix = ""): StoredItemMeta[] => {
   }
 }
 
-export const scanStoredPages = (): StoredItemMeta[] => {
+export const scanStoredPages = (): StoredItemMetaSet => {
   return scanStorageForItems("page_");
 }
 
@@ -276,7 +284,7 @@ export class SearchItem {
 
 
 
-export const fetchRecentSearches = (): SearchItem[] => {
+export const fetchRecentSearches = (): SearchSet[] => {
   const { items, total, size} = scanStorageForItems("search_");
   const rows: SearchSet[] = [];
   if (items instanceof Array && total > 0 && size > 0) {
@@ -288,10 +296,11 @@ export const fetchRecentSearches = (): SearchItem[] => {
       const text = atob(suffix);
       if (stored.valid) {
         if (stored.data instanceof Object) {
-          const { page, count, results, ts } = stored.data;
+          const { page, count, results, ts, key } = stored.data;
           if (results instanceof Array && count > 0) {
             rows.push({
               text,
+              key: item.key,
               page,
               count,
               results: results.filter(row => row instanceof Object).map(row => new SearchItem(row)),

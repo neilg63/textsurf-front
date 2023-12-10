@@ -24,22 +24,33 @@ export class PageResult {
   description = "";
   image = "";
   numLinks = 0;
+  textLength = 0;
   stats = new PageStats();
   domainLinks: string[] = [];
   lang = "";
+  uri = "";
 
   constructor(inData: any  = null) {
     if (inData instanceof Object) {
       const { content, stats } = inData;
       if (content instanceof Object) {
         this.stats = new PageStats(content);
-        const { bestText } = content;
+        const { bestText, compactTextLength } = content;
         if (notEmptyString(bestText, 5)) {
           this.innerHTML = bestText;
         }
+        if (compactTextLength) {
+          this.textLength = smartCastInt(compactTextLength);
+          if (this.textLength < 2500 && this.innerHTML.length > 16) {
+            const stripped = this.innerHTML.replace(/<\/?\w[^>]*?>/, "").replace(/\s\s+/, " ").trim();
+            if (stripped.length < 1250) {
+              this.textLength = stripped.length;
+            }
+          }
+        }
       }
       if (stats instanceof Object) {
-        const { image, description, numLinks, domainLinks, lang } = stats;
+        const { image, description, numLinks, domainLinks, lang, uri } = stats;
         if (domainLinks instanceof Array) {
           this.domainLinks = domainLinks;
         }
@@ -53,13 +64,25 @@ export class PageResult {
         if (notEmptyString(lang)) {
           this.lang = lang;
         }
+
+        if (notEmptyString(uri, 5)) {
+          this.uri = uri;
+        }
       }
 
     }
   }
 
   get hasContent(): boolean {
-    return this.innerHTML.length > 5;
+    return this.innerHTML.length > 5 || this.description.length > 0;
+  }
+
+  get minimalContent(): boolean {
+    return this.textLength < 512;
+  }
+
+  get hasManyLinks(): boolean {
+    return this.numLinks > 8;
   }
 
 }

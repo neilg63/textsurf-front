@@ -137,13 +137,22 @@ export const queryDataObject = async (
   return data;
 };
 
-export const fetchPageDefault = async (uri = "") => {
-  const alias = "scrape/page-stats";
+const fetchPageFromRemote = async (uri = "", fullMode = false) => {
+  const method = fullMode ? "get-page-from-browser": "get-page";
+  const alias = ["scrape", method].join("/");
   if (notEmptyString(uri, 7) && (uri.startsWith('https://') || uri.startsWith('http://'))) {
     return await queryDataObject(alias, { uri } );
   } else {
     return { valid: false, msg: "no uri" }
   }
+}
+
+export const fetchPageDefault = async (uri = "") => {
+  return fetchPageFromRemote(uri, false);
+}
+
+export const fetchPageFullBrowser = async (uri = "") => {
+  return fetchPageFromRemote(uri, true);
 }
 
 
@@ -250,14 +259,14 @@ export const fetchSearchResults = async (text = "", cc = "", lang = "", page = 1
   return result;
 }
 
-export const fetchTextPage = async (uri = ""): Promise<PageResult>  => {
+export const fetchTextPage = async (uri = "", fullMode = false): Promise<PageResult>  => {
   const cacheKey = ['page', btoa(uri)].join('_');
   const stored = fromLocal(cacheKey, 60 * 60);
   let page = new PageResult();
-  if (!stored.expired) {
+  if (!stored.expired && !fullMode) {
     page = new PageResult(stored.data);
   } else {
-    const data = await fetchPageDefault(uri);
+    const data = await fetchPageFromRemote(uri, fullMode);
     if (data.valid) {
       toLocal(cacheKey, data);
       page = new PageResult(data);
