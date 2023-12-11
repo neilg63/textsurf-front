@@ -541,24 +541,10 @@ export const objectToMap = (data: any = null): Map<string, any> => {
   return data instanceof Object ? new Map(Object.entries(data)) : new Map();
 };
 
-export const roundToStep = (value = 0, step = 5): number => {
-  const func = value < 0 ? Math.ceil : Math.floor;
-  return func(smartCastInt(value) / step) * step;
-};
-
-export const degToSign = (deg: number): number => {
-  return Math.floor((deg % 360) / 30) + 1;
-};
-
-export const shortenName = (str = ""): string => {
-  let out = "";
-  if (typeof str === "string") {
-    const parts = str.trim().split(/\s+/);
-    if (parts[0].length > 1 || parts.length < 2) {
-      out = parts[0];
-    } else {
-      out = [parts[0], parts[1]].join(" ");
-    }
+export const isAUrl = (txt: string): boolean => {
+  if (notEmptyString(txt)) {
+    return /^https?:\/\/[^ ]*?\.\w+(\/|$)/.test(txt) && txt.length > 10;
+  } else {
+    return false;
   }
-  return out;
-};
+}

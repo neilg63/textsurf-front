@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import { fetchPageLinks, fetchSearchResults, fetchSuggestList, fetchTextPage } from '../api/methods';
-import { LinkResultSet, SearchResult, SearchResultSet } from '../api/models/search-results';
+import { LinkResultSet, SearchResult } from '../api/models/search-results';
 import { PageResult } from '../api/models/page-result';
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
@@ -14,6 +14,7 @@ import type { StoredItemInfo } from '../api/localstore';
 import { SearchSet } from '../api/localstore';
 import { PrimeIcons } from 'primevue/api';
 import { notEmptyString } from '../api/validators';
+import { isAUrl } from '../api/converters';
 
 const search = ref('');
 
@@ -86,6 +87,7 @@ const updateResults = () => {
   })
 }
 
+
 const updatePageResult = (uri = "", fullMode = false) => {
   loading.value = true;
   fetchTextPage(uri, fullMode).then(data => {
@@ -114,12 +116,23 @@ const updatePageLinksSet = (uri = "") => {
 const checkForSearchString = () => {
   if (notEmptyString(search.value)) {
     const txt = search.value.trim();
-    if (/^https?:\/\/[^ ]*?\.\w+$/.test(txt) && txt.length > 10) {
+    if (isAUrl(txt)) {
       updatePageResult(txt);
     } else if (txt.length > 2) {
       updateResults();
     }
   }
+}
+
+
+const updateResultsForPage = () => {
+  const txt = search.value? search.value.trim() : '';
+  if (isAUrl(txt)) {
+    setTimeout(() => {
+      updatePageResult(txt)
+    }, 750)
+  }
+  updateResults();
 }
 
 const loadSearchList = (set: SearchSet) => {
@@ -170,7 +183,7 @@ const tabs = ref(defaultTabs);
   <div class="text-surf">
     <fieldset class="search-form">
       <AutoComplete v-model="search" :suggestions="items" @complete="updateSuggestions" @keydown.enter="checkForSearchString"/>
-      <Button type="button" aria-label="Search" icon="pi pi-search" :loading="loading" @click="updateResults" />
+      <Button type="button" aria-label="Search" icon="pi pi-search" :loading="loading" @click="updateResultsForPage" />
     </fieldset>
     <TabView :activeIndex="0">
       <TabPanel v-for="tab in tabs" :key="tab.key">
