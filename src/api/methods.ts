@@ -271,7 +271,7 @@ export const fetchTextPage = async (uri = "", fullMode = false): Promise<PageRes
   const stored = fromLocal(cacheKey, 60 * 60);
   let page = new PageResult();
   if (!stored.expired && !fullMode) {
-    page = new PageResult(stored.data, uri);
+    page = new PageResult(stored.data, uri, stored.ts);
   } else {
     const data = await fetchPageFromRemote(uri, fullMode);
     if (data.valid) {

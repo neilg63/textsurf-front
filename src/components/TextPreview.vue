@@ -8,7 +8,7 @@ import { PrimeIcons } from 'primevue/api';
 import { useEventStore } from '../stores/event.store';
 import type { LinkResultSet } from '../api/models/search-results';
 import { notEmptyString } from '../api/validators';
-import { fileSize } from '../api/converters';
+import { fileSize, longDate } from '../api/converters';
 const props = defineProps<{
   page: PageResult
   linkSet: LinkResultSet
@@ -18,14 +18,25 @@ const event = useEventStore();
 
 const activeIndex = ref(0);
 
-const pageSizeText = ref(fileSize(props.page.totalSize));
+const pageSizeText = ref(fileSize(props.page.stats.sourceHtmlLength));
+
+const buildDateTime = () => {
+  if (props.page.stats.ts > 1000) {
+    return longDate(props.page.stats.ts);
+  } else {
+    return 'N/A';
+  }
+}
+
+const retrieved = ref(buildDateTime());
 
 event.on('page-loaded', (success) => {
   if (success) {
     setTimeout(() => {
       activeIndex.value = 0;
-      if (typeof props.page.totalSize === 'number') {
-        pageSizeText.value = fileSize(props.page.totalSize);
+      if (props.page.stats.sourceHtmlLength) {
+        pageSizeText.value = fileSize(props.page.stats.sourceHtmlLength);
+        retrieved.value = buildDateTime();
       } else {
         pageSizeText.value = '';
       }
@@ -73,10 +84,10 @@ const monitorTab = (row: any) => {
     const { originalEvent, index } = row;
     if (originalEvent instanceof PointerEvent) {
       if (originalEvent.target instanceof HTMLElement) {
-        const isIcon = originalEvent.target.tagName.toLowerCase() === 'i';
         switch (index) {
           case 0:
-              if (isIcon && props.page.minimalContent) {
+            console.log(props.page.minimalContent)
+              if (props.page.minimalContent) {
                 fetchFromBrowser(props.page.uri);
               }
               break;
@@ -127,6 +138,10 @@ const toUriTip = (uri: string) => {
       </template>
       <template v-if="tab.key == 'stats'">
         <dl class="grid-2">
+       <dt>URL</dt>
+        <dd>
+          <a :href="page.uri" target="_blank">{{ page.uri }}</a>
+        </dd>
         <dt>No. of links</dt>
         <dd>
           <span class="number">{{ page.numLinks }}</span>
@@ -141,6 +156,10 @@ const toUriTip = (uri: string) => {
         <dd>
           <span class="size">{{ pageSizeText }}</span>
           
+        </dd>
+        <dt>Retrieved</dt>
+        <dd>
+          <time>{{ retrieved }}</time>
         </dd>
       </dl>
       </template>

@@ -250,10 +250,13 @@ export const longDate = (
   dateMode = "dmy",
   precision = "s"
 ) => {
-  if (offset !== 0) {
+  
     if (typeof datetime === "string") {
       datetime = toDateTime(datetime);
+    } else if (typeof datetime === 'number') {
+      datetime = new Date(datetime * 1000)
     }
+  if (offset !== 0) {
     if (datetime instanceof Date) {
       datetime = addSeconds(datetime, offset);
     }

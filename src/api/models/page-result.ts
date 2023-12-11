@@ -8,14 +8,18 @@ export class PageStats {
   compactTextLength = 0;
   sourceHtmlLength = 0;
   strippedHtmlLength = 0;
+  ts = 0;
 
-  constructor(inData: any  = null) {
+  constructor(inData: any  = null, ts = 0) {
     if (inData instanceof Object) {
       const { compactHtmlLength,  compactTextLength,  sourceHtmlLength, strippedHtmlLength } = inData;
       this.compactHtmlLength = smartCastInt(compactHtmlLength);
       this.compactTextLength = smartCastInt(compactTextLength);
       this.sourceHtmlLength = smartCastInt(sourceHtmlLength);
       this.strippedHtmlLength = smartCastInt(strippedHtmlLength);
+      if (ts > 1000) {
+        this.ts = smartCastInt(ts);
+      }
     }
   }
 }
@@ -26,17 +30,19 @@ export class PageResult {
   image = "";
   numLinks = 0;
   textLength = 0;
-  totalSize = 0;
   stats = new PageStats();
   domainLinks: string[] = [];
   lang = "";
   uri = "";
 
-  constructor(inData: any  = null, uri = "") {
+  constructor(inData: any  = null, uri = "", ts = 0) {
+    if (ts < 1000) {
+      ts = Date.now() / 1000;
+    }
     if (inData instanceof Object) {
       const { content, stats } = inData;
       if (content instanceof Object) {
-        this.stats = new PageStats(content);
+        this.stats = new PageStats(content, ts);
         const { bestText, compactTextLength } = content;
         if (notEmptyString(bestText, 5)) {
           this.innerHTML = cleanInnerHtml(bestText);
@@ -49,11 +55,10 @@ export class PageResult {
               this.textLength = stripped.length;
             }
           }
-          
         }
       }
       if (stats instanceof Object) {
-        const { image, description, numLinks, domainLinks, lang, uri, sourceHtmlLength } = stats;
+        const { image, description, numLinks, domainLinks, lang, uri } = stats;
         if (domainLinks instanceof Array) {
           this.domainLinks = domainLinks;
         }
@@ -70,9 +75,6 @@ export class PageResult {
 
         if (notEmptyString(uri, 5)) {
           this.uri = uri;
-        }
-        if (sourceHtmlLength) {
-          this.totalSize = sourceHtmlLength;
         }
       }
       if (notEmptyString(uri, 5) && this.uri.length < 5) {
