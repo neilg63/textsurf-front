@@ -86,7 +86,6 @@ const monitorTab = (row: any) => {
       if (originalEvent.target instanceof HTMLElement) {
         switch (index) {
           case 0:
-            console.log(props.page.minimalContent)
               if (props.page.minimalContent) {
                 fetchFromBrowser(props.page.uri);
               }
