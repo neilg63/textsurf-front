@@ -13,6 +13,38 @@ nav {
   flex-flow: row nowrap;
 }
 
+main {
+  > aside {
+    position: absolute;
+    top: 6em;
+    @media (min-width: 50rem) {
+      top: 10em;
+    }
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    background-color: var(--color-background);
+    .inner {
+      position: relative;
+      max-width: 80em;
+      padding: 1em 5%;
+      margin: 0 auto;
+    }
+  }
+  &.show-info-page {
+   > aside {
+      position: absolute;
+      opacity: 1;
+      z-index: 30;
+      pointer-events: all;
+      min-height: 80vh;
+      overflow: visible;
+    }
+  }
+}
 nav a.router-link-exact-active {
   color: var(--color-text);
 }
@@ -61,7 +93,7 @@ dd .p-button.p-button-icon-only.p-button-rounded {
 
   .logo {
     margin: 0 2vw;
-    height: 90%;
+    height: 75%;
     width: auto;
   }
 

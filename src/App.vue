@@ -19,8 +19,12 @@ const buildClasses = () => {
     const parts = route.path.substring(1).split('/');
     if (parts.length > 0) {
       base = parts.shift() as string;
+      if (base.length > 2) {
+        cls.push('show-info-page');
+      }
       if (parts.length > 0) {
         cls.push(['page', base, ...parts].join());
+        
       }
     }
   }
@@ -34,8 +38,8 @@ const buildClasses = () => {
   wrapperClasses.value = cls;
 }
 
-watch(route, async (newRoute, oldRoute) => {
-  if (newRoute.path !== oldRoute.path) {
+watch(route, async (newRoute) => {
+  if (newRoute.path) {
     buildClasses();
   }
 });
@@ -73,7 +77,9 @@ onMounted(() => {
       <TextSearchHome />
       <TextPreview :page="pageStore.page" :linkSet="pageStore.linkSet" />
     </section>
-    <RouterView />
+    <aside class="info-page">
+      <RouterView />
+    </aside>
  </main>
 </template>
 <style lang="scss">
