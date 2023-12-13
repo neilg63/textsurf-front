@@ -40,6 +40,7 @@ event.on('page-loaded', (success) => {
       } else {
         pageSizeText.value = '';
       }
+      setTimeout(buildTabs, 375);
     }, 125);
   }
 })
@@ -101,11 +102,15 @@ const monitorTab = (row: any) => {
 
 const buildTabs = () => {
   const articleIcon = props.page.minimalContent ? PrimeIcons.ARROW_CIRCLE_RIGHT : PrimeIcons.ARROW_CIRCLE_DOWN;
-  return [
-    { key: "article", title: "Main Text", icon: articleIcon },
-    { key: "links", title: "Page links", icon: PrimeIcons.LIST },
-    { key: "stats", title: "Statistics", icon: PrimeIcons.CHART_BAR }
-  ]
+  const items = [{ key: "article", title: "Main Text", icon: articleIcon }];
+ 
+  //if (props.page.uri) {
+    items.push(
+      { key: "links", title: "Page links", icon: PrimeIcons.LIST },
+      { key: "stats", title: "Statistics", icon: PrimeIcons.CHART_BAR }
+    )
+  //} 
+  return items;
 }
 
 const tabs = ref(buildTabs());

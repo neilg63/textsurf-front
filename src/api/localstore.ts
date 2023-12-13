@@ -229,10 +229,12 @@ export const removeExtraPages = () => {
 
 export const listStoredPages = (): StoredItemInfo[] => {
   const { items, total, size} = scanStoredPages();
+
+  
   const rows: StoredItemInfo[] = [];
   if (items instanceof Array && total > 0 && size > 0) {
     for (const item of items) {
-      const stored = fromLocal(item.key);
+      const stored = fromLocal(item.key, 7 * 24 * 60 * 60);
       if (stored.valid) {
         if (stored.data instanceof Object) {
           const { stats } = stored.data;
@@ -319,7 +321,7 @@ export const fetchRecentSearches = (): SearchSet[] => {
   const rows: SearchSet[] = [];
   if (items instanceof Array && total > 0 && size > 0) {
     for (const item of items) {
-      const stored = fromLocal(item.key);
+      const stored = fromLocal(item.key, 7 * 24 * 60 * 60);
       const parts = item.key.split("_");
       parts.shift();
       const suffix = parts.join("_");

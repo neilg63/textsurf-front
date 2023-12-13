@@ -1,11 +1,7 @@
 <template>
   <div class="inner">
     <p>Welcome to the alpha version of <strong>TextSurf</strong>, an innovative way to navigate the textual Web without the extra load or distraction of multimedia and advertising. Other text-only Web browsing tools merely suppress imagery. By contrast TextSurf strips all multimedia assets, client-side scripts and stylesheets from source Web pages before they reach you. This significantly lightens the load. </p>
- <p>TextSurf uses a NodeJS backend application to fetch requested resources and retrieve only the main text and link sections. Our current HTML-parsing algorithm assumes two types of pages:</p>
-<ol>
-  <li>Landing pages with mainly links to other pages.</li>
-  <li>Detail pages contaning a main article.</li>
-</ol>
+ <p>TextSurf uses a Rust-based server application to fetch requested resources and retrieve only the main text and link sections. If you see miminal content, you may click on the <em>Main Text</em> tab again to retrieve the content via a headless browser.</p>
 <p>However, often what end users may consider the main part of a page is dwarfed by other content, often exposing text that would be normally hidden by stylesheets or javascript. As a result, in some cases you may get too much text and in others too little. We use a the Cheerio DOM-manipulation library to analyse the key HTML elements of pages and assign text or link relevance scores. As the project evolves we hope to introduce HTML pattern matching templates for specific sites and common content management systems.</p>
 <h3>Known issues</h3>
 <ol>
