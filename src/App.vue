@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { ref, watch, onMounted } from 'vue';
+import Button from 'primevue/button';
 import TextSearchHome from './components/TextSearchHome.vue'
 import TextPreview from './components/TextPreview.vue'
 import { usePageStore } from './stores/page.store';
 const route = useRoute();
 const showInfo = ref(false);
 const showPreview = ref(false);
+const displayMode = ref('search');
+const fullScreen = ref(false);
 
 const wrapperClasses = ref(['show-home']);
 
@@ -35,6 +38,9 @@ const buildClasses = () => {
   if (showPreview.value) {
     cls.push('show-preview');
   }
+  if (displayMode.value) {
+    cls.push(['show',displayMode.value].join('-'));
+  }
   wrapperClasses.value = cls;
 }
 
@@ -52,6 +58,35 @@ watch(pageStore, async (newStore, oldStore) => {
     showPreview.value = false;
   }
 });
+
+
+
+window.addEventListener('resize', (e: Event) => {
+  if (e.target instanceof Window) {
+    if (e.target.innerWidth < 900) {
+      if (pageStore.page.hasContent) {
+        displayMode.value = 'content';
+      } else {
+        displayMode.value = 'search';
+      }
+    }
+  }
+});
+
+
+const toggleContentSearch = (contentMode = false) => {
+  displayMode.value = contentMode? 'content' : 'search';
+  buildClasses();
+}
+
+
+const showContent = () => {
+  toggleContentSearch(true)
+}
+
+const showSearch = () => {
+  toggleContentSearch(false)
+}
 
 onMounted(() => {
   buildClasses();
@@ -73,9 +108,14 @@ onMounted(() => {
         </nav>
       </div>
     </header>
-    <section class="search-section twin">
-      <TextSearchHome />
-      <TextPreview :page="pageStore.page" :linkSet="pageStore.linkSet" />
+    <section class="surf-section twin">
+      
+      <TextSearchHome>
+        <Button type="button" label="Content" icon="pi pi-arrow-right" class="mobile-content-toggle show-content" @click="showContent" size="small" />
+      </TextSearchHome>
+      <TextPreview :page="pageStore.page" :linkSet="pageStore.linkSet">
+        <Button type="button" label="Search" icon="pi pi-arrow-left" class="mobile-content-toggle show-search" @click="showSearch" size="small" />
+      </TextPreview>
     </section>
     <aside class="info-page">
       <RouterView />

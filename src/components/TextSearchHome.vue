@@ -185,40 +185,43 @@ const tabs = ref(defaultTabs);
       <AutoComplete v-model="search" :suggestions="items" @complete="updateSuggestions" @keydown.enter="checkForSearchString"/>
       <Button type="button" aria-label="Search" icon="pi pi-search" :loading="loading" @click="updateResultsForPage" />
     </fieldset>
-    <TabView :activeIndex="0">
-      <TabPanel v-for="tab in tabs" :key="tab.key">
-        <template #header>
-          <span class="text" v-tooltip.top="tab.tooltip">{{ tab.title }}</span>
-          <i :class="tab.icon"></i>
-        </template>
-        <template v-if="tab.key === 'search'">
-          <ul class="result-list" v-if="results.length > 0">
-            <li v-for="(row, ri) in results" :key="[row.uri, ri].join('-')" v-tooltip.bottom="toUriTip(row.uri)">
-              <p class="link">
-                <span class="preview-trigger" @click="updatePageResult(row.uri)">{{ row.title }}</span>
-                <a :href="row.uri" target="_blank">🔗</a>
-              </p>
-              <p class="summary" v-html="row.summary"></p>
-            </li>
-          </ul>
-        </template>
-        <template v-if="tab.key === 'pages'">
-          <ul class="result-list" v-if="recentPages.length > 0">
-            <li v-for="(row, ri) in recentPages" :key="[row.key, ri].join('-')">
-                <span class="preview-trigger" @click="updatePageResult(row.uri)">{{ row.title }}</span>
-                
-            </li>
-          </ul>
-        </template>
-        <template v-if="tab.key === 'recent'">
-          <ul class="result-list" v-if="recentSearches.length > 0">
-            <li v-for="(row, ri) in recentSearches" :key="[row.key, ri].join('-')">
-                <span class="preview-trigger" @click="loadSearchList(row)">{{ row.text }}</span>
-                <em>{{ row.results.length }}</em>
-            </li>
-          </ul>
-        </template>
-      </TabPanel>
-    </TabView>
+    <section class="search-results-wrapper tabbed-section-container">
+      <slot></slot>
+      <TabView :activeIndex="0">
+        <TabPanel v-for="tab in tabs" :key="tab.key">
+          <template #header>
+            <span class="text" v-tooltip.top="tab.tooltip">{{ tab.title }}</span>
+            <i :class="tab.icon"></i>
+          </template>
+          <template v-if="tab.key === 'search'">
+            <ul class="result-list" v-if="results.length > 0">
+              <li v-for="(row, ri) in results" :key="[row.uri, ri].join('-')" v-tooltip.bottom="toUriTip(row.uri)">
+                <p class="link">
+                  <span class="preview-trigger" @click="updatePageResult(row.uri)">{{ row.title }}</span>
+                  <a :href="row.uri" target="_blank">🔗</a>
+                </p>
+                <p class="summary" v-html="row.summary"></p>
+              </li>
+            </ul>
+          </template>
+          <template v-if="tab.key === 'pages'">
+            <ul class="result-list" v-if="recentPages.length > 0">
+              <li v-for="(row, ri) in recentPages" :key="[row.key, ri].join('-')">
+                  <span class="preview-trigger" @click="updatePageResult(row.uri)">{{ row.title }}</span>
+                  
+              </li>
+            </ul>
+          </template>
+          <template v-if="tab.key === 'recent'">
+            <ul class="result-list" v-if="recentSearches.length > 0">
+              <li v-for="(row, ri) in recentSearches" :key="[row.key, ri].join('-')">
+                  <span class="preview-trigger" @click="loadSearchList(row)">{{ row.text }}</span>
+                  <em>{{ row.results.length }}</em>
+              </li>
+            </ul>
+          </template>
+        </TabPanel>
+      </TabView>
+    </section>
   </div>
 </template>

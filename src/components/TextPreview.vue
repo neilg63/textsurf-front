@@ -40,7 +40,8 @@ event.on('page-loaded', (success) => {
       } else {
         pageSizeText.value = '';
       }
-      setTimeout(buildTabs, 375);
+      setTimeout(buildTabsAndSetFirst, 250);
+      
     }, 125);
   }
 })
@@ -102,73 +103,78 @@ const monitorTab = (row: any) => {
 
 const buildTabs = () => {
   const articleIcon = props.page.minimalContent ? PrimeIcons.ARROW_CIRCLE_RIGHT : PrimeIcons.ARROW_CIRCLE_DOWN;
-  const items = [{ key: "article", title: "Main Text", icon: articleIcon }];
- 
-  //if (props.page.uri) {
-    items.push(
-      { key: "links", title: "Page links", icon: PrimeIcons.LIST },
-      { key: "stats", title: "Statistics", icon: PrimeIcons.CHART_BAR }
-    )
-  //} 
-  return items;
+  const extraTabsDisabled = !props.page.hasUri;
+  return [
+    { key: "article", title: "Main Text", icon: articleIcon },
+    { key: "links", title: "Page links", icon: PrimeIcons.LIST, disabled: extraTabsDisabled },
+    { key: "stats", title: "Statistics", icon: PrimeIcons.CHART_BAR, disabled: extraTabsDisabled }
+  ];
+}
+
+const buildTabsAndSetFirst = () => {
+  activeIndex.value = 0;
+  setTimeout(buildTabs, 50);
 }
 
 const tabs = ref(buildTabs());
 
 const toUriTip = (uri: string) => {
-  return { value: uri, fitContent: true, position: "bottom", class: "wide text-small"};
+  return { value: uri, fitContent: true, position: "bottom", "class": "wide text-small" };
 }
 
 </script>
 
 <template>
-  <TabView @tab-change="monitorTab" :activeIndex="activeIndex">
-    <TabPanel v-for="tab in tabs" :key="tab.key">
-      <template #header>
-        <span class="text">{{ tab.title }}</span>
-        <i :class="tab.icon" :data-uri="page.uri"></i>
-      </template>
-      <template v-if="tab.key == 'article'">
-        <article v-if="page.hasContent" class="content" v-html="page.innerHTML">
-        </article>
-      </template>
-      <template v-if="tab.key == 'links'">
-        <ul v-if="linkSet.results.length > 0" class="links result-list">
-          <li v-for="link in linkSet.results" :key="link.uri" v-tooltip.bottom="toUriTip(link.uri)">
-            <span class="preview-trigger" @click="updatePageResult(link.uri)">{{ link.title }}</span>
-            <a :href="link.uri" target="_blank">🔗</a>
-          </li>
-        </ul>
-      </template>
-      <template v-if="tab.key == 'stats'">
-        <dl class="grid-2">
-       <dt>URL</dt>
-        <dd>
-          <a :href="page.uri" target="_blank">{{ page.uri }}</a>
-        </dd>
-        <dt>No. of links</dt>
-        <dd>
-          <span class="number">{{ page.numLinks }}</span>
-          <Button v-if="page.hasManyLinks" size="small" @click="fetchPageLinks(page.uri)" v-tooltip.right="'Fetch all links in the full page'" :icon="PrimeIcons.LIST" severity="info" text rounded />
-        </dd>
-        <dt>Text length</dt>
-        <dd>
-          <span class="number">{{ page.textLength }}</span>
-          <Button v-if="page.minimalContent" @click="fetchFromBrowser(page.uri)" v-tooltip.right="'The remote content requires a full browser. Fetch now'" :icon="PrimeIcons.ARROW_CIRCLE_RIGHT" severity="warning" size="small" text rounded />
-        </dd>
-        <dt>Page size</dt>
-        <dd>
-          <span class="size">{{ pageSizeText }}</span>
-          
-        </dd>
-        <dt>Retrieved</dt>
-        <dd>
-          <time>{{ retrieved }}</time>
-        </dd>
-      </dl>
-      </template>
-  </TabPanel>
-</TabView>
+  <section class="main-content-wrapper tabbed-section-container">
+    <slot></slot>
+  <TabView @tab-change="monitorTab" :tabIndex="activeIndex" >
+      <TabPanel v-for="tab in tabs" :key="tab.key">
+        <template #header>
+          <span class="text">{{ tab.title }}</span>
+          <i :class="tab.icon" :data-uri="page.uri"></i>
+        </template>
+        <template v-if="tab.key == 'article'">
+          <article v-if="page.hasContent" class="content" v-html="page.innerHTML">
+          </article>
+        </template>
+        <template v-if="tab.key == 'links'">
+          <ul v-if="linkSet.results.length > 0" class="links result-list">
+            <li v-for="link in linkSet.results" :key="link.uri" v-tooltip.bottom="toUriTip(link.uri)">
+              <span class="preview-trigger" @click="updatePageResult(link.uri)">{{ link.title }}</span>
+              <a :href="link.uri" target="_blank">🔗</a>
+            </li>
+          </ul>
+        </template>
+        <template v-if="tab.key == 'stats'">
+          <dl class="grid-2">
+        <dt>URL</dt>
+          <dd>
+            <a :href="page.uri" target="_blank">{{ page.uri }}</a>
+          </dd>
+          <dt>No. of links</dt>
+          <dd>
+            <span class="number">{{ page.numLinks }}</span>
+            <Button v-if="page.hasManyLinks" size="small" @click="fetchPageLinks(page.uri)" v-tooltip.right="'Fetch all links in the full page'" :icon="PrimeIcons.LIST" severity="info" text rounded />
+          </dd>
+          <dt>Text length</dt>
+          <dd>
+            <span class="number">{{ page.textLength }}</span>
+            <Button v-if="page.minimalContent" @click="fetchFromBrowser(page.uri)" v-tooltip.right="'The remote content requires a full browser. Fetch now'" :icon="PrimeIcons.ARROW_CIRCLE_RIGHT" severity="warning" size="small" text rounded />
+          </dd>
+          <dt>Page size</dt>
+          <dd>
+            <span class="size">{{ pageSizeText }}</span>
+            
+          </dd>
+          <dt>Retrieved</dt>
+          <dd>
+            <time>{{ retrieved }}</time>
+          </dd>
+        </dl>
+        </template>
+    </TabPanel>
+  </TabView>
+  </section>
 </template>
 
 <style lang="scss">

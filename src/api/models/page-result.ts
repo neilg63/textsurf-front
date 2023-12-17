@@ -95,4 +95,8 @@ export class PageResult {
     return this.numLinks > 8;
   }
 
+  get hasUri(): boolean {
+    return (this.uri.startsWith('http://') || this.uri.startsWith('https://')) && notEmptyString(this.uri, 10);
+  }
+
 }
