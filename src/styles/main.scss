@@ -78,8 +78,15 @@ nav a:first-of-type {
     > .mobile-content-toggle {
       position: absolute;
       top: 0;
-      z-index: 45;
       padding: 0.25rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-in-out;
+      @media (max-width: $max-mobile-width) {
+        opacity: 1;
+        pointer-events: all;
+        z-index: 45;
+      }      
       .p-button-icon {
         margin-right: 0.5em;
       }
@@ -95,9 +102,11 @@ nav a:first-of-type {
   }
 }
 
-.show-content {
-  .surf-section {
-    left: -110%;
+@media (max-width: $max-mobile-width) {
+  .show-content {
+    .surf-section {
+      left: -110%;
+    }
   }
 }
 .grid-2 {
