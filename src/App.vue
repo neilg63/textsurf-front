@@ -5,6 +5,7 @@ import Button from 'primevue/button';
 import TextSearchHome from './components/TextSearchHome.vue'
 import TextPreview from './components/TextPreview.vue'
 import { usePageStore } from './stores/page.store';
+import { useEventStore } from './stores/event.store';
 const route = useRoute();
 const showInfo = ref(false);
 const showPreview = ref(false);
@@ -14,6 +15,7 @@ const fullScreen = ref(false);
 const wrapperClasses = ref(['show-home']);
 
 const pageStore = usePageStore();
+const event = useEventStore();
 
 const buildClasses = () => {
   const cls = [];
@@ -40,6 +42,9 @@ const buildClasses = () => {
   }
   if (displayMode.value) {
     cls.push(['show',displayMode.value].join('-'));
+  }
+  if (fullScreen.value) {
+    cls.push('fullscreen-mode');
   }
   wrapperClasses.value = cls;
 }
@@ -87,6 +92,12 @@ const showContent = () => {
 const showSearch = () => {
   toggleContentSearch(false)
 }
+
+event.on('page-loaded', (success) => {
+  if (success) {
+    showContent();
+  }
+});
 
 onMounted(() => {
   buildClasses();
