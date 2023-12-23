@@ -1,4 +1,5 @@
 import { smartCastFloat, smartCastInt } from "./converters";
+import { pageUriToKey } from "./methods";
 import { SearchResult } from "./models/search-results";
 import { notEmptyString, validDateTimeString } from "./validators";
 
@@ -249,6 +250,11 @@ export const listStoredPages = (): StoredItemInfo[] => {
     }
   }
   return rows;
+}
+
+export const removeFromStoredPages = (uri: string) => {
+  const cacheKey = pageUriToKey(uri);
+  localStorage.removeItem(cacheKey);
 }
 
 export class SearchSet {

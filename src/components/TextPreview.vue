@@ -122,10 +122,14 @@ const toUriTip = (uri: string) => {
   return { value: uri, fitContent: true, position: "bottom", "class": "wide text-small" };
 }
 
+const wrapperClasses = (): string => {
+  return props.page.hasUri ? props.page.minimalContent ? 'minimal-content' : 'with-content' : 'no-content';
+}
+
 </script>
 
 <template>
-  <section class="main-content-wrapper tabbed-section-container">
+  <section class="main-content-wrapper tabbed-section-container" :class="wrapperClasses()">
     <slot></slot>
   <TabView @tab-change="monitorTab" :tabIndex="activeIndex" >
       <TabPanel v-for="tab in tabs" :key="tab.key">
@@ -134,6 +138,7 @@ const toUriTip = (uri: string) => {
           <i :class="tab.icon" :data-uri="page.uri"></i>
         </template>
         <template v-if="tab.key == 'article'">
+          <Button v-if="page.hasContent" @click="fetchFromBrowser(page.uri)" class="full-browser-trigger" v-tooltip.left="'The remote content may require a full browser. Fetch now'" label="Full mode" :icon="PrimeIcons.ARROW_CIRCLE_RIGHT" severity="warning" size="large" text rounded />
           <article v-if="page.hasContent" class="content" v-html="page.innerHTML">
           </article>
         </template>
@@ -154,12 +159,12 @@ const toUriTip = (uri: string) => {
           <dt>No. of links</dt>
           <dd>
             <span class="number">{{ page.numLinks }}</span>
-            <Button v-if="page.hasManyLinks" size="small" @click="fetchPageLinks(page.uri)" v-tooltip.right="'Fetch all links in the full page'" :icon="PrimeIcons.LIST" severity="info" text rounded />
+            <Button v-if="page.hasManyLinks" size="small" click="fetchPageLinks(page.uri)" v-tooltip.right="'Fetch all links in the full page'" :icon="PrimeIcons.LIST" severity="info" text rounded />
           </dd>
           <dt>Text length</dt>
           <dd>
             <span class="number">{{ page.textLength }}</span>
-            <Button v-if="page.minimalContent" @click="fetchFromBrowser(page.uri)" v-tooltip.right="'The remote content requires a full browser. Fetch now'" :icon="PrimeIcons.ARROW_CIRCLE_RIGHT" severity="warning" size="small" text rounded />
+            <Button @click="fetchFromBrowser(page.uri)" v-tooltip.right="'The remote content requires a full browser. Fetch now'" :icon="PrimeIcons.ARROW_CIRCLE_RIGHT" severity="warning" size="small" text rounded />
           </dd>
           <dt>Page size</dt>
           <dd>

@@ -109,7 +109,7 @@ nav a:first-of-type {
     }
   }
 }
-.grid-2 {
+dl.grid-2 {
   display: grid;
   grid-template-columns: 8em auto;
 }
@@ -119,6 +119,26 @@ dd .p-button.p-button-icon-only.p-button-rounded {
   width: 1.5rem;
   padding: 0.25em;
   margin: 0 0.5em;
+}
+
+.result-list {
+  list-style: none;
+  margin: 0 0 2em 0;
+  padding: 0;
+  > li {
+    > button.p-button {
+      padding: 0;
+      height: 1.5rem;
+      
+      &.delete-one {
+        filter: grayscale(100%);
+        transition: filter 0.25s ease-in-out;
+        &:hover {
+          filter: grayscale(0%);
+        }
+      }
+    }
+  }
 }
 
 @media (min-width: $max-mobile-width) {
@@ -221,4 +241,24 @@ fieldset {
       }
     }
   }
+}
+
+.p-tabview-panel > button.full-browser-trigger {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  padding: 0.5em;
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+  &:hover {
+    opacity: 1;
+  }
+  .p-button-label {
+    font-size: 0.75em;
+    margin-left: 0.5em;
+  }
+}
+
+.minimal-content .p-tabview-panel > button.full-browser-trigger {
+  opacity: 1;
 }

@@ -9,7 +9,7 @@ import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
 import { usePageStore } from '../stores/page.store'
 import { useEventStore } from '../stores/event.store';
-import { fetchRecentSearches, listStoredPages, removeExtraPages, SearchItem } from '../api/localstore';
+import { fetchRecentSearches, listStoredPages, removeExtraPages, removeFromStoredPages, SearchItem } from '../api/localstore';
 import type { StoredItemInfo } from '../api/localstore';
 import { SearchSet } from '../api/localstore';
 import { PrimeIcons } from 'primevue/api';
@@ -87,6 +87,12 @@ const updateResults = () => {
   })
 }
 
+const deletePageFromStore = (uri: string) => {
+  removeFromStoredPages(uri);
+  setTimeout(() => {
+    updatePageHistory();
+  }, 250);
+}
 
 const updatePageResult = (uri = "", fullMode = false) => {
   loading.value = true;
@@ -208,7 +214,7 @@ const tabs = ref(defaultTabs);
             <ul class="result-list" v-if="recentPages.length > 0">
               <li v-for="(row, ri) in recentPages" :key="[row.key, ri].join('-')">
                   <span class="preview-trigger" @click="updatePageResult(row.uri)">{{ row.title }}</span>
-                  
+                  <Button @click="deletePageFromStore(row.uri)" class="delete-one" v-tooltip.right="'Delete from local store'" :icon="PrimeIcons.DELETELEFT" size="small" severity="danger" text rounded />
               </li>
             </ul>
           </template>

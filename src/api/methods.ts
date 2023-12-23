@@ -5,6 +5,7 @@ import { fromLocal, toLocal } from "./localstore";
 import { PageResult } from "./models/page-result";
 import { LinkResultSet, SearchResultSet } from "./models/search-results";
 import type { BasicData } from "./interfaces";
+import { toGetPagePayload } from "./site-overrides";
 
 const extractDataObj = (res: any) => {
   if (res instanceof Object) {
@@ -141,7 +142,8 @@ const fetchPageFromRemote = async (uri = "", fullMode = false) => {
   const method = fullMode ? "get-page-from-browser": "get-page";
   const alias = ["scrape", method].join("/");
   if (notEmptyString(uri, 7) && (uri.startsWith('https://') || uri.startsWith('http://'))) {
-    return await queryDataObject(alias, { uri } );
+    const payload = toGetPagePayload(uri);
+    return await queryDataObject(alias, payload);
   } else {
     return { valid: false, msg: "no uri" }
   }
@@ -266,8 +268,10 @@ export const fetchSearchResults = async (text = "", cc = "", lang = "", page = 1
   return result;
 }
 
+export const pageUriToKey = (uri: string) => ['page', btoa(uri)].join('_');
+
 export const fetchTextPage = async (uri = "", fullMode = false): Promise<PageResult>  => {
-  const cacheKey = ['page', btoa(uri)].join('_');
+  const cacheKey = pageUriToKey(uri);
   const stored = fromLocal(cacheKey, 60 * 60);
   let page = new PageResult();
   if (!stored.expired && !fullMode) {
