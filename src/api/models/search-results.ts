@@ -8,11 +8,11 @@ export class SearchResult {
   summary = "";
   title = "";
   uri = "";
-  source = "brave";
+  source = "unknown";
 
   constructor(inData: any  = null) {
     if (inData instanceof Object) {
-      const { date, summary, title, uri } = inData;
+      const { date, summary, title, uri, provider } = inData;
       if (validDateTimeString(date)) {
         this.date = new Date(date);
       }
@@ -24,6 +24,10 @@ export class SearchResult {
       }
       if (notEmptyString(uri)) {
         this.uri = uri;
+      }
+
+      if (notEmptyString(provider)) {
+        this.source = provider;
       }
     }
   }

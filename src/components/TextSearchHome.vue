@@ -204,6 +204,7 @@ const tabs = ref(defaultTabs);
               <li v-for="(row, ri) in results" :key="[row.uri, ri].join('-')" v-tooltip.bottom="toUriTip(row.uri)">
                 <p class="link">
                   <span class="preview-trigger" @click="updatePageResult(row.uri)">{{ row.title }}</span>
+                  <em class="provider">{{ row.source }}</em>
                   <a :href="row.uri" target="_blank">🔗</a>
                 </p>
                 <p class="summary" v-html="row.summary"></p>
