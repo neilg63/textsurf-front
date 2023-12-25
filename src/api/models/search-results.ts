@@ -39,7 +39,10 @@ export class SearchResult {
   toItem(): SearchItem {
     return new SearchItem(this)
   }
-
+  
+  get hasSource(): boolean {
+    return this.source.length > 2 && ['unknown', 'none', '_', '__'].includes(this.source) === false;
+  }
 }
 
 export class SearchResultSet {
