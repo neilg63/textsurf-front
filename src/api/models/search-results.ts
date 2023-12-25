@@ -12,7 +12,7 @@ export class SearchResult {
 
   constructor(inData: any  = null) {
     if (inData instanceof Object) {
-      const { date, summary, title, uri, provider } = inData;
+      const { date, summary, title, uri, provider, source } = inData;
       if (validDateTimeString(date)) {
         this.date = new Date(date);
       }
@@ -25,9 +25,10 @@ export class SearchResult {
       if (notEmptyString(uri)) {
         this.uri = uri;
       }
-
       if (notEmptyString(provider)) {
         this.source = provider;
+      } else if (notEmptyString(source)) {
+        this.source = source;
       }
     }
   }
