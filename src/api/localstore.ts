@@ -294,10 +294,11 @@ export class SearchItem {
   uri = "";
   summary = "";
   date = new Date(0);
+  source = "";
 
   constructor(inData: any = null) {
     if (inData instanceof Object) {
-      const { title, uri, summary, date } = inData;
+      const { title, uri, summary, date, source, provider } = inData;
       if (notEmptyString(title)) {
         this.title = title;
       }
@@ -311,6 +312,11 @@ export class SearchItem {
         this.date = new Date(date);
       } else if (date instanceof Date) {
         this.date = date;
+      }
+      if (notEmptyString(source)) {
+        this.source = source;
+      } else if (notEmptyString(provider)) {
+        this.source = provider;
       }
     }
   }
